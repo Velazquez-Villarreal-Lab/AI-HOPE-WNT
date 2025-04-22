@@ -2,14 +2,32 @@ library(stringr)
 #step 1 merge sample and pt level metadata. 
 
 pt_df = read.csv( 
-    file = "crc_wnt_pathway_dataset.csv",
-    sep = ",",
+    file = "pt_metadata.tsv",
+    sep = "\t",
     # skip = 4,
-    row.names =1,
+    # row.names =1,
     header = T,
     na.strings=c("","NA"),
     stringsAsFactors = FALSE
     ) 
+
+print(head(pt_df) )
+pt_df$PFS_STATUS = pt_df$OS_STATUS 
+pt_df$PFS_MONTHS = pt_df$OS_MONTHS 
+pt_df$AGENT = gsub("_", "|", pt_df$AGENT_CHAIN) 
+
+pt_df$OS_STATUS <- ifelse(pt_df$OS_STATUS == "0:LIVING", 0, ifelse(pt_df$OS_STATUS == "1:DECEASED", 1, pt_df$OS_STATUS))
+pt_df$PFS_STATUS <- ifelse(pt_df$PFS_STATUS == "0:LIVING", 0, ifelse(pt_df$PFS_STATUS == "1:DECEASED", 1, pt_df$PFS_STATUS))
+# pt_df$PFS_STATUS <- ifelse(pt_df$PFS_STATUS == "0:CENSORED", 0, ifelse(pt_df$PFS_STATUS == "1:PROGRESSION", 1, pt_df$PFS_STATUS))
+
+write.table( 
+    pt_df,
+    file = "pt_wnt_metadata.tsv" ,
+    quote = F,
+    sep = "\t",
+    row.names = F
+  )
+
 
 # pt_df[] <- lapply(pt_df, function(column) {
 #   if (is.character(column)) { # Check if the column is character
@@ -24,8 +42,8 @@ pt_df = read.csv(
 
 
 
-pt_df$OS_STATUS <- ifelse(pt_df$OS_STATUS == "0:LIVING", 0, ifelse(pt_df$OS_STATUS == "1:DECEASED", 1, pt_df$OS_STATUS))
-pt_df$PFS_STATUS <- ifelse(pt_df$PFS_STATUS == "0:CENSORED", 0, ifelse(pt_df$PFS_STATUS == "1:PROGRESSION", 1, pt_df$PFS_STATUS))
+# pt_df$OS_STATUS <- ifelse(pt_df$OS_STATUS == "0:LIVING", 0, ifelse(pt_df$OS_STATUS == "1:DECEASED", 1, pt_df$OS_STATUS))
+# pt_df$PFS_STATUS <- ifelse(pt_df$PFS_STATUS == "0:CENSORED", 0, ifelse(pt_df$PFS_STATUS == "1:PROGRESSION", 1, pt_df$PFS_STATUS))
 
 
 # replace_spaces <- function(x) {
@@ -44,16 +62,16 @@ pt_df$PFS_STATUS <- ifelse(pt_df$PFS_STATUS == "0:CENSORED", 0, ifelse(pt_df$PFS
 #   }
 # }
 
-remove_non_alphanum <- function(x) {
-  gsub("[^A-Za-z0-9]", "_", x)
-}
+# remove_non_alphanum <- function(x) {
+#   gsub("[^A-Za-z0-9]", "_", x)
+# }
 
-# Apply to all character and factor columns
-for (col in names(pt_df)) {
-  if (is.character(pt_df[[col]]) || is.factor(pt_df[[col]])) {
-    pt_df[[col]] <- remove_non_alphanum(as.character(pt_df[[col]]))
-  }
-}
+# # Apply to all character and factor columns
+# for (col in names(pt_df)) {
+#   if (is.character(pt_df[[col]]) || is.factor(pt_df[[col]])) {
+#     pt_df[[col]] <- remove_non_alphanum(as.character(pt_df[[col]]))
+#   }
+# }
 
 
 # sample_df = read.csv( 
@@ -85,15 +103,15 @@ for (col in names(pt_df)) {
 # colnames(out_df)[21] = "TUMOR_STAGE"
 
 # out_df <- ifelse(is.na(out_df), "none", out_df)
-out_df = pt_df 
-out_df[is.na(out_df)] <- "none"
+# out_df = pt_df 
+# out_df[is.na(out_df)] <- "none"
 
-# print(head(out_df))
+# # print(head(out_df))
 
-write.table( 
-    out_df,
-    file = "data/COAD_WNT/pt_metadata.tsv" ,
-    quote = F,
-    sep = "\t",
-    row.names = T
-  )
+# write.table( 
+#     out_df,
+#     file = "data/COAD_WNT/pt_metadata.tsv" ,
+#     quote = F,
+#     sep = "\t",
+#     row.names = T
+#   )
